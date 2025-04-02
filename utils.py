@@ -48,9 +48,10 @@ def sanitize_message(msg: dict) -> dict:
 
 
 def create_response(**kwargs):
-    url = "https://api.openai.com/v1/responses"
+    azure_openai_api_base = os.getenv("AZURE_OPENAI_API_BASE")
+    url = f"{azure_openai_api_base}openai/responses?api-version=2025-03-01-preview"
     headers = {
-        "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+        "Api-key": os.getenv('AZURE_OPENAI_API_KEY'),
         "Content-Type": "application/json"
     }
 
@@ -63,7 +64,9 @@ def create_response(**kwargs):
     if response.status_code != 200:
         print(f"Error: {response.status_code} {response.text}")
 
-    return response.json()
+    response_json = response.json()
+    # print(f"Response: {response_json}")
+    return response_json
 
 
 def check_blocklisted_url(url: str) -> None:

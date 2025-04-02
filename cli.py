@@ -6,6 +6,7 @@ from computers import (
     ScrapybaraUbuntu,
     LocalPlaywrightComputer,
     DockerComputer,
+    SessionsCodeInterpreterBrowser,
 )
 
 def acknowledge_safety_check_callback(message: str) -> bool:
@@ -27,6 +28,7 @@ def main():
             "browserbase",
             "scrapybara-browser",
             "scrapybara-ubuntu",
+            "sessions"
         ],
         help="Choose the computer environment to use.",
         default="local-playwright",
@@ -61,6 +63,7 @@ def main():
         "browserbase": BrowserbaseBrowser,
         "scrapybara-browser": ScrapybaraBrowser,
         "scrapybara-ubuntu": ScrapybaraUbuntu,
+        "sessions": SessionsCodeInterpreterBrowser,
     }
 
     ComputerClass = computer_mapping[args.computer]
@@ -73,7 +76,7 @@ def main():
         items = []
 
 
-        if args.computer in ["browserbase", "local-playwright"]:
+        if args.computer in ["browserbase", "local-playwright", "sessions"]:
             if not args.start_url.startswith("http"):
                 args.start_url = "https://" + args.start_url
             agent.computer.goto(args.start_url)
