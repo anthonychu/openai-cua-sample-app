@@ -74,12 +74,9 @@ class SessionsCodeInterpreterBrowser():
         pass
 
 
-    def _get_browser_and_page(self) -> Tuple[Browser, Page]:
+    def _get_browser_and_page(self):
         """
         Initialize the code interpreter session.
-
-        Returns:
-            Tuple[Browser, Page]: A tuple containing the connected browser and page objects.
         """
 
         print(f'Using session ID: {self.aca_session.session_id}')
@@ -103,6 +100,13 @@ class SessionsCodeInterpreterBrowser():
         )
 
         context = await browser.new_context()
+
+        def _handle_new_page(new_page):
+            global page
+            print("New page created")
+            page = new_page
+
+        context.on("page", _handle_new_page)
 
         page = await context.new_page()
         await page.set_viewport_size({{"width": width, "height": height}})
