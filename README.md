@@ -29,6 +29,7 @@ Other included sample [computer environments](#computer-environments):
 - [Docker](https://docker.com/) (containerized desktop)
 - [Browserbase](https://www.browserbase.com/) (remote browser, requires account)
 - [Scrapybara](https://scrapybara.com) (remote browser or computer, requires account)
+- [Azure Container Apps dynamic sessions](https://learn.microsoft.com/azure/container-apps/sessions-code-interpreter) (remote browser, requires account)
 - ...or implement your own `Computer`!
 
 ## Overview
@@ -96,6 +97,7 @@ This sample app provides a set of implemented `Computer` examples, but feel free
 | `Browserbase`       | browserbase        | `browser` | Remote browser environment        | [Browserbase](https://www.browserbase.com/) API key in `.env`    |
 | `ScrapybaraBrowser` | scrapybara-browser | `browser` | Remote browser environment        | [Scrapybara](https://scrapybara.com/dashboard) API key in `.env` |
 | `ScrapybaraUbuntu`  | scrapybara-ubuntu  | `linux`   | Remote Ubuntu desktop environment | [Scrapybara](https://scrapybara.com/dashboard) API key in `.env` |
+| `SessionsCodeInterpreterBrowser`  | sessions  | `linux`   | Remote Ubuntu desktop environment | [Azure Container Apps dynamic sessions](https://learn.microsoft.com/azure/container-apps/sessions-code-interpreter) POOL_MANAGEMENT_ENDPOINT in `.env` |
 
 Using the CLI, you can run the sample app with different computer environments using the options listed above:
 
