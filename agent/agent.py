@@ -5,9 +5,11 @@ from utils import (
     pp,
     sanitize_message,
     check_blocklisted_url,
+    HtmlLogger,
 )
 import json
 from typing import Callable
+from datetime import datetime
 
 
 class Agent:
@@ -31,6 +33,8 @@ class Agent:
         self.debug = False
         self.show_images = False
         self.acknowledge_safety_check_callback = acknowledge_safety_check_callback
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.html_logger = HtmlLogger(filename=f"log_{timestamp}.html")
 
         if computer:
             self.tools += [
@@ -51,11 +55,13 @@ class Agent:
         if item["type"] == "message":
             if self.print_steps:
                 print(item["content"][0]["text"])
+                self.html_logger.log(item["content"][0]["text"])
 
         if item["type"] == "function_call":
             name, args = item["name"], json.loads(item["arguments"])
             if self.print_steps:
                 print(f"{name}({args})")
+                self.html_logger.log(f"{name}({args})")
 
             if hasattr(self.computer, name):  # if function exists on computer, call it
                 method = getattr(self.computer, name)
@@ -74,11 +80,16 @@ class Agent:
             action_args = {k: v for k, v in action.items() if k != "type"}
             if self.print_steps:
                 print(f"{action_type}({action_args})")
+                self.html_logger.log(f"{action_type}({action_args})")
 
             method = getattr(self.computer, action_type)
             method(**action_args)
 
             screenshot_base64 = self.computer.screenshot()
+            if self.print_steps:
+                print(f"screenshot()")
+                self.html_logger.log("screenshot()")
+                self.html_logger.log_image(screenshot_base64)
             if self.show_images:
                 show_image(screenshot_base64)
 
@@ -104,6 +115,9 @@ class Agent:
             # additional URL safety checks for browser environments
             if self.computer.environment == "browser":
                 current_url = self.computer.get_current_url()
+                if self.print_steps:
+                    print(f"Current URL: {current_url}")
+                    self.html_logger.log(f"Current URL: {current_url}")
                 check_blocklisted_url(current_url)
                 call_output["output"]["current_url"] = current_url
 
@@ -139,3 +153,9 @@ class Agent:
                     new_items += self.handle_item(item)
 
         return new_items
+
+    def log(self, message):
+        if self.print_steps:
+            print(message)
+            self.html_logger.log(message)
+            

@@ -1,3 +1,4 @@
+import datetime
 import os
 import requests
 from dotenv import load_dotenv
@@ -77,3 +78,56 @@ def check_blocklisted_url(url: str) -> None:
         for blocked in BLOCKED_DOMAINS
     ):
         raise ValueError(f"Blocked URL: {url}")
+
+
+class HtmlLogger:
+    """
+    A logger that writes HTML to a file.
+    """
+
+    LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
+
+    HTML_TEMPLATE = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Log</title>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                font-size: 1.5em;
+            }}
+        </style>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {{
+                window.scrollTo(0, document.body.scrollHeight);
+            }});
+        </script>
+    </head>
+    <body>
+        {content}
+    </body>
+    </html>
+    """
+
+    def __init__(self, filename: str):
+        self.filename = filename
+        self.html = ""
+
+    def _timestamp_str(self):
+        return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def log(self, message: str):
+        self.html += f"\n<hr /><p>{self._timestamp_str()}<br />{message}</p>"
+        self.save()
+
+    def log_image(self, image_base64: str):
+        self.html += f'\n<hr /><p>{self._timestamp_str()}<br /><img src="data:image/png;base64,{image_base64}" alt="Screenshot" /></p>'
+
+    def save(self):
+        os.makedirs(self.LOG_DIR, exist_ok=True)
+        with open(os.path.join(self.LOG_DIR, self.filename), "w") as f:
+            f.write(self.HTML_TEMPLATE.format(content=self.html))

@@ -1,10 +1,6 @@
-import json
 import os
 import time
-from typing import Literal, Tuple, Dict, List, Union, Optional
-from playwright.sync_api import Browser, Page, BrowserContext, Error as PlaywrightError
-from .base_playwright import BasePlaywrightComputer
-from browserbase import Browserbase
+from typing import Literal, Dict, List
 from dotenv import load_dotenv
 import base64
 from .sessions import CodeInterpreterSession
@@ -50,19 +46,16 @@ class SessionsCodeInterpreterBrowser():
         self,
         width: int = 1024,
         height: int = 768,
-        virtual_mouse: bool = False,
     ):
         """
-        Initialize the Browserbase instance. Additional configuration options for features such as persistent cookies, ad blockers, file downloads and more can be found in the Browserbase API documentation: https://docs.browserbase.com/reference/api/create-a-session
+        Initialize a sessions code interpreter with Playwright and Chromium.
 
         Args:
             width (int): The width of the browser viewport. Default is 1024.
             height (int): The height of the browser viewport. Default is 768.
-            virtual_mouse (bool): Whether to enable the virtual mouse cursor. Default is True.
         """
         self.aca_session = CodeInterpreterSession(pool_management_endpoint=os.getenv("POOL_MANAGEMENT_ENDPOINT"))
         self.dimensions = (width, height)
-        self.virtual_mouse = virtual_mouse
 
 
     def __enter__(self):
@@ -88,7 +81,6 @@ class SessionsCodeInterpreterBrowser():
 
         width = {width}
         height = {height}
-        virtual_mouse = {str(self.virtual_mouse)}
 
         launch_args = [f"--window-size={{width}},{{height}}", "--disable-extensions", "--disable-file-system"]
 
@@ -119,7 +111,6 @@ class SessionsCodeInterpreterBrowser():
 
 
     def get_current_url(self) -> str:
-        print("*** Getting current URL")
         script = """
         page.url
         """
@@ -129,7 +120,6 @@ class SessionsCodeInterpreterBrowser():
     screenshot_count = 0
     def screenshot(self) -> str:
             """Capture only the viewport (not full_page)."""
-            print("*** Taking screenshot...")
 
             script = """
             s = await page.screenshot(
@@ -152,7 +142,6 @@ class SessionsCodeInterpreterBrowser():
 
 
     def click(self, x: int, y: int, button: str = "left") -> None:
-        print(f"*** Clicking at ({x}, {y}) with button '{button}'")
         match button:
             case "back":
                 self.back()
@@ -174,7 +163,6 @@ class SessionsCodeInterpreterBrowser():
 
 
     def double_click(self, x: int, y: int) -> None:
-        print(f"*** Double-clicking at ({x}, {y})")
         script = f"""
         await page.mouse.dblclick({{"x": {x}, "y": {y}}})
         """
@@ -182,7 +170,6 @@ class SessionsCodeInterpreterBrowser():
 
 
     def scroll(self, x: int, y: int, scroll_x: int, scroll_y: int) -> None:
-        print(f"*** Scrolling at ({x}, {y}) with scroll ({scroll_x}, {scroll_y})")
         script = f"""
         await page.mouse.move({x}, {y})
         await page.evaluate(f"window.scrollBy({scroll_x}, {scroll_y})")
@@ -191,7 +178,6 @@ class SessionsCodeInterpreterBrowser():
 
     
     def type(self, text: str) -> None:
-        print(f"*** Typing text: {text}")
         # Escape special characters in the text
         escaped_text = text.replace('"', '\\"').replace('\n', '\\n').replace('\r', '\\r')
         
@@ -202,12 +188,10 @@ class SessionsCodeInterpreterBrowser():
 
 
     def wait(self, ms: int = 1000) -> None:
-        print(f"*** Waiting for {ms} milliseconds")
         time.sleep(ms / 1000)
 
         
     def move(self, x: int, y: int) -> None:
-        print(f"*** Moving mouse to ({x}, {y})")
         script = f"""
         await page.mouse.move({x}, {y})
         """
@@ -215,7 +199,6 @@ class SessionsCodeInterpreterBrowser():
     
 
     def keypress(self, keys: List[str]) -> None:
-        print(f"*** Pressing keys: {keys}")
         mapped_keys = [CUA_KEY_TO_PLAYWRIGHT_KEY.get(key.lower(), key) for key in keys]
         script = f"""
         mapped_keys = {mapped_keys}
@@ -228,7 +211,6 @@ class SessionsCodeInterpreterBrowser():
 
 
     def drag(self, path: List[Dict[str, int]]) -> None:
-        print(f"*** Dragging along path: {path}")
         if not path:
             return
         script = f"""
@@ -244,19 +226,16 @@ class SessionsCodeInterpreterBrowser():
 
     # --- Extra browser-oriented actions ---
     def goto(self, url: str) -> None:
-        print(f"*** Navigating to URL: {url}")
         try:
             script = f"""
             await page.goto("{url}")
             """
             result = self.aca_session.execute(script)
-            print(json.dumps(result, indent=4))
         except Exception as e:
             print(f"Error navigating to {url}: {e}")
 
 
     def back(self) -> None:
-        print("*** Going back in browser history")
         script = """
         await page.go_back()
         """
@@ -264,10 +243,7 @@ class SessionsCodeInterpreterBrowser():
 
 
     def forward(self) -> None:
-        print("*** Going forward in browser history")
         script = """
         await page.go_forward()
         """
         self.aca_session.execute(script)
-
-

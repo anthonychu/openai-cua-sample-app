@@ -43,9 +43,6 @@ def _default_token_provider(self) -> Optional[str]:
 
 class CodeInterpreterSession:
 
-    sanitize_input: bool = True
-    """Whether to sanitize input to the python REPL."""
-
     pool_management_endpoint: str
     """The management endpoint of the session pool. Should end with a '/'."""
 
@@ -91,7 +88,7 @@ class CodeInterpreterSession:
     def execute(self, python_code: str) -> Any:
         """Execute Python code in the session."""
 
-        print(f"--------\nExecuting code:\n{python_code}\n--------")
+        # print(f"--------\nExecuting code:\n{python_code}\n--------")
 
         access_token = self.access_token_provider()
         api_url = self._build_url("code/execute")
@@ -113,6 +110,10 @@ class CodeInterpreterSession:
         response_json = response.json()
         properties = response_json.get("properties", {})
         # print(f"--------\nResponse:\n{properties}\n--------")
+
+        if properties.get("strerr"):
+            print(f"--------\nCode execution contains an error:\n{properties['strerr']}\n--------")
+
         return properties
 
 

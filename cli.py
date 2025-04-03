@@ -86,6 +86,7 @@ def main():
                 user_input = args.input or input("> ")
                 if user_input == 'exit':
                     break
+                agent.log(f"User input: {user_input}")
             except EOFError as e:
                 print(f"An error occurred: {e}")
                 break
