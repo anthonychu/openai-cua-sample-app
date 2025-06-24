@@ -8,8 +8,14 @@ from PIL import Image
 from io import BytesIO
 import io
 from urllib.parse import urlparse
+from pathlib import Path
 
 load_dotenv(override=True)
+# Load .env.secret from the parent folder
+parent_dir = Path(__file__).parent.parent
+secret_env_path = parent_dir / ".env.secret"
+if secret_env_path.exists():
+    load_dotenv(dotenv_path=secret_env_path, override=True)
 
 BLOCKED_DOMAINS = [
     "maliciousbook.com",

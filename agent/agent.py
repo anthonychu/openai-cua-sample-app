@@ -10,6 +10,7 @@ from utils import (
 import json
 from typing import Callable
 from datetime import datetime
+import time
 
 
 class Agent:
@@ -144,9 +145,13 @@ class Agent:
             )
             self.debug_print(response)
 
-            if "output" not in response and self.debug:
-                print(response)
-                raise ValueError("No output from model")
+            if "output" not in response:
+                if self.debug:
+                    print("Response:", response)
+                # raise ValueError("No output from model")
+                print("No output from model, trying again...")
+                time.sleep(5)
+                continue
             else:
                 new_items += response["output"]
                 for item in response["output"]:

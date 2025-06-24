@@ -73,6 +73,7 @@ class SessionsCodeInterpreterBrowser():
         """
 
         print(f'Using session ID: {self.aca_session.session_id}')
+        print('Session started. Initializing browser...')
 
         width, height = self.dimensions
 
@@ -130,13 +131,16 @@ class SessionsCodeInterpreterBrowser():
 
             self.aca_session.execute(script)
 
+            # Wait 1 second to ensure the screenshot is saved
+            time.sleep(1)
+
             binary_data = self.aca_session.download_file(remote_file_path="screenshot.png")
             base64_data = base64.b64encode(binary_data.getvalue()).decode('utf-8')
 
             self.screenshot_count += 1
             os.makedirs("logs", exist_ok=True)
-            with open(f"logs/screenshot{self.screenshot_count}.png", "wb") as f:
-                f.write(base64.b64decode(base64_data))
+            # with open(f"logs/screenshot{self.screenshot_count}.png", "wb") as f:
+            #     f.write(base64.b64decode(base64_data))
 
             return base64_data
 

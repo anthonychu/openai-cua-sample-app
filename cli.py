@@ -1,5 +1,6 @@
 import argparse
 from agent.agent import Agent
+from datetime import date
 from computers import (
     BrowserbaseBrowser,
     ScrapybaraBrowser,
@@ -74,6 +75,14 @@ def main():
             acknowledge_safety_check_callback=acknowledge_safety_check_callback,
         )
         items = []
+
+        items.append({
+            "role": "system",
+            "content": (
+                "Don't provide a response until you've browsed the web for the information. "
+                f"Today's date is {date.today().isoformat()}"
+            )
+        })
 
 
         if args.computer in ["browserbase", "local-playwright", "sessions"]:
